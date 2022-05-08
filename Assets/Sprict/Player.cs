@@ -36,21 +36,33 @@ public class Player : MonoBehaviour
     }
 
     // Update is called once per frame
+
+    float timeScale = 0;
+
     void Update()
     {
         var moveVelocityValue = camPos.right * moveVec.x * moveSpeed;
         moveVelocityValue += camPos.forward * moveVec.z * moveSpeed;
         moveVelocityValue.y = rb.velocity.y;
 
+        if (moveVec.magnitude > 0.1f)
+        {
+            if (timeScale < 1)
+                timeScale += Time.deltaTime * 4;
+
+            transform.rotation = Quaternion.LookRotation(moveVelocityValue);
+        }
+        else
+            timeScale = 0;
+
         if (!dontMove)
         {
-            anim.SetFloat(walkId, moveVec.magnitude);
+            var SmoothMag = moveVec.magnitude * timeScale;
+
+            anim.SetFloat(walkId, SmoothMag);
 
             rb.velocity = moveVelocityValue;
         }
-
-        if (moveVec.magnitude > 0.1f)
-            transform.rotation = Quaternion.LookRotation(moveVelocityValue);
     }
 
     private void Move(InputAction.CallbackContext info)
